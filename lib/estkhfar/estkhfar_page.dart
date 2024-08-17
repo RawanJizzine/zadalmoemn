@@ -38,7 +38,7 @@ class _EstkhfarPageState extends State<EstkhfarPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/getcounterestkhfar?competition_id=${widget.competitionId}&user_id=$storedUserId'),
+        Uri.parse('http://zadalmomen.com/api/getcounterestkhfar?competition_id=${widget.competitionId}&user_id=$storedUserId'),
         headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ Future<void> incrementCounter() async {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://10.0.2.2:8000/api/savecounterestkhfar')
+        Uri.parse('http://zadalmomen.com/api/savecounterestkhfar')
       );
 
       request.headers['Content-Type'] = 'application/json';

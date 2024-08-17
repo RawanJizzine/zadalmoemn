@@ -19,42 +19,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    handleTimezoneConversion();
+   
     _checkFirstLaunch();
   }
  
-  void handleTimezoneConversion() async {
-    try {
-      String timezone = await getTimezone();
-      await convertTimestamps(timezone);
-    } catch (e) {
-      print('Error handling timezone conversion: $e');
-    }
-  }
 
-  Future<String> getTimezone() async {
-    // Ensure the timezone data is initialized
-    tz_data.initializeTimeZones();
-    // Use the current location
-    final String currentTimezone = tz.local.name;
-    print('Timezone: $currentTimezone');
-    return currentTimezone;
-  }
-
-  Future<void> convertTimestamps(String timezone) async {
-    final url = Uri.parse('https://127.0.0.1:8000/api/convert-timestamps');
-
-    final response = await http.post(
-      url,
-      body: {'timezone': 'Asia/Beirut'},
-    );
-
-    if (response.statusCode == 200) {
-      print('Timestamps converted successfully');
-    } else {
-      print('Failed to convert timestamps');
-    }
-  }
+ 
   _checkFirstLaunch() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;

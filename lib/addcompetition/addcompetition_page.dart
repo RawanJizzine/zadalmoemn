@@ -49,7 +49,7 @@ class _AddCompetitionPageState extends State<AddCompetitionPage> {
           throw Exception('No token found');
         }
 
-        var uri = Uri.parse('http://10.0.2.2:8000/api/competitions');
+        var uri = Uri.parse('http://zadalmomen.com/api/competitions');
         var request = http.MultipartRequest('POST', uri);
 
         request.headers['Authorization'] = 'Bearer $accessToken';

@@ -33,7 +33,7 @@ class _AddSubscribePageState extends State<AddSubscribePage> {
     }
 
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/api/getusers${query != null ? '?search=$query' : ''}'),
+      Uri.parse('http://zadalmomen.com/api/getusers${query != null ? '?search=$query' : ''}'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
@@ -59,7 +59,7 @@ class _AddSubscribePageState extends State<AddSubscribePage> {
     }
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/getcompetitions'),
+        Uri.parse('http://zadalmomen.com/api/getcompetitions'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
@@ -93,7 +93,7 @@ class _AddSubscribePageState extends State<AddSubscribePage> {
     }
 
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/api/getcompetitiondetails/$competitionId'),
+      Uri.parse('http://zadalmomen.com/api/getcompetitiondetails/$competitionId'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
@@ -119,7 +119,7 @@ class _AddSubscribePageState extends State<AddSubscribePage> {
     }
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/api/addsubscription'),
+      Uri.parse('http://zadalmomen.com/api/addsubscription'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',

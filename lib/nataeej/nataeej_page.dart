@@ -21,7 +21,7 @@ class _NataeejPageState extends State<NataeejPage> {
   final accessToken = await storage.read(key: 'token');
   print(stage);
   print('object');
-  String url = 'http://10.0.2.2:8000/api/getcompetitionestkhfar/$competitionId/results?stage=$stage';
+  String url = 'http://zadalmomen.com/api/getcompetitionestkhfar/$competitionId/results?stage=$stage';
 
   print('Fetching data from: $url');
   print('Using token: $accessToken');

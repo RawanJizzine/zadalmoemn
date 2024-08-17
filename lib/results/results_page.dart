@@ -54,7 +54,7 @@ class _ResultsPageState extends State<ResultsPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/getuser/$storedUserId'),
+        Uri.parse('http://zadalmomen.com/api/getuser/$storedUserId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
@@ -97,7 +97,7 @@ class _ResultsPageState extends State<ResultsPage> {
   try {
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://192.168.1.26:8000/api/updateuser/$storedUserId'),
+      Uri.parse('http://zadalmomen.com/api/updateuser/$storedUserId'),
     );
 
     request.headers['Authorization'] = 'Bearer $accessToken';
@@ -175,7 +175,7 @@ class _ResultsPageState extends State<ResultsPage> {
                 width: 90,
                 child: ClipOval(
                     child: Image.network(
-                      'http://10.0.2.2:8000/images/$imageUrl',
+                      'http://zadalmomen.com/images/$imageUrl',
                       fit: BoxFit.cover,
                     ),
                   ),

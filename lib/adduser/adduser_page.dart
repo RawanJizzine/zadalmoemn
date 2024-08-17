@@ -42,7 +42,7 @@ class _AddUserPageState extends State<AddUserPage> {
         return;
       }
 
-      var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8000/api/users'));
+      var request = http.MultipartRequest('POST', Uri.parse('http://zadalmomen.com/api/users'));
       
       request.headers['Authorization'] = 'Bearer $accessToken';
 

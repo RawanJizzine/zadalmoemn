@@ -53,7 +53,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
   Future<void> fetchCompetitions(String userId, String accessToken) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/getusercompetitions/$userId'),
+        Uri.parse('http://zadalmomen.com/api/getusercompetitions/$userId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',

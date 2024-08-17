@@ -32,7 +32,7 @@ class _NatijatiPageState extends State<NatijatiPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://10.0.2.2:8000/api/getnatijatiestkhfar?competition_id=$competitionId&user_id=$storedUserId'), // Use query parameter
+            'http://zadalmomen.com/api/getnatijatiestkhfar?competition_id=$competitionId&user_id=$storedUserId'), // Use query parameter
         headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
