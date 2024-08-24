@@ -53,7 +53,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
   Future<void> fetchCompetitions(String userId, String accessToken) async {
     try {
       final response = await http.get(
-        Uri.parse('http://zadalmomen.com/api/getusercompetitions/$userId'),
+        Uri.parse('https://api.zadalmomen.com/api/getusercompetitions/$userId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
@@ -267,8 +267,11 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
   ),
           backgroundColor: const Color(0xff104F59),
         ),
-        body: competitions.isNotEmpty
-            ? Column(
+        body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Display loading indicator
+          : competitions.isEmpty
+              ? const Center(child: Text( "لا توجد بيانات متاحة")) // Show "No data available" message
+              :  Column(
                 children: [
                   const SizedBox(height: 20),
                   Expanded(
@@ -327,7 +330,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                                       child: ClipOval(
                                         child: competition['image'] != null
                                             ? Image.network(
-                                                'http://zadalmomen.com/imageapp/${competition['image']}',
+                                                'https://api.zadalmomen.com/imageapp/${competition['image']}',
                                                 fit: BoxFit.cover,
                                                 width: 80,
                                                 height: 60,
@@ -433,7 +436,7 @@ class _CompetitionsPageState extends State<CompetitionsPage> {
                   ),
                 ],
               )
-            : const Center(child: Text('No data available')),
+           
       ),
     );
   }

@@ -62,26 +62,26 @@ class _HomePageState extends State<HomePage> {
                   BottomNavigationBarItem(
                     icon: Image.asset(
                       'assets/icon/homeoff.jpeg',
-                      width: 70,
-                      height: 45,
+                      width: 80,
+                      height: 42,
                     ),
                     label: '',
                     activeIcon: Image.asset(
                       'assets/icon/homeon.jpeg',
-                      width: 75,
-                      height: 45,
+                      width: 80,
+                      height: 42,
                     ),
                   ),
                   BottomNavigationBarItem(
                     icon: Image.asset(
                       'assets/icon/icontwo.jpeg',
-                      width: 160,
+                      width: 80,
                       height: 42,
                     ),
                     label: '',
                     activeIcon: Image.asset(
                       'assets/icon/iconone.jpeg',
-                      width: 160,
+                      width: 80,
                       height: 42,
                     ),
                   ),

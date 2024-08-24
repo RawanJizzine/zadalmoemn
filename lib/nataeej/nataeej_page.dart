@@ -16,59 +16,57 @@ class _NataeejPageState extends State<NataeejPage> {
   final List<String> items = ['النصف النهائي', 'النهائي'];
   List<Map<String, dynamic>> competitionData = [];
   final storage = const FlutterSecureStorage();
+  bool isLoading = false;
 
   Future<void> fetchCompetitionData(int competitionId, String stage) async {
-  final accessToken = await storage.read(key: 'token');
-  print(stage);
-  print('object');
-  String url = 'http://zadalmomen.com/api/getcompetitionestkhfar/$competitionId/results?stage=$stage';
+    setState(() {
+      isLoading = true;  // Start loading
+    });
 
-  print('Fetching data from: $url');
-  print('Using token: $accessToken');
+    final accessToken = await storage.read(key: 'token');
+    String url = 'https://api.zadalmomen.com/api/getcompetitionestkhfar/$competitionId/results?stage=$stage';
 
-  // Clear the previous competitionData
-  setState(() {
-    competitionData = [];  // Clear data before fetching new data
-  });
+    // Clear the previous competitionData
+    setState(() {
+      competitionData = [];  // Clear data before fetching new data
+    });
 
-  try {
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-
-      if (data.isNotEmpty) {
-        setState(() {
-          competitionData = List<Map<String, dynamic>>.from(data);
-        });
+        if (data.isNotEmpty) {
+          setState(() {
+            competitionData = List<Map<String, dynamic>>.from(data);
+          });
+        } else {
+          setState(() {
+            competitionData = [];  // Ensure data is cleared if no data found
+          });
+        }
       } else {
-        print('No data found for stage: $stage');
         setState(() {
-          competitionData = [];  // Ensure data is cleared if no data found
+          competitionData = [];  // Ensure data is cleared on failure
         });
       }
-    } else {
-      print('Failed to fetch data. Status code: ${response.statusCode}');
+    } catch (e) {
       setState(() {
-        competitionData = [];  // Ensure data is cleared on failure
+        competitionData = [];  // Ensure data is cleared on error
+      });
+    } finally {
+      setState(() {
+        isLoading = false;  // Stop loading
       });
     }
-  } catch (e) {
-    print('Error fetching data: $e');
-    setState(() {
-      competitionData = [];  // Ensure data is cleared on error
-    });
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -76,25 +74,25 @@ class _NataeejPageState extends State<NataeejPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-            leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white), // Customize the back icon color
-    onPressed: () {
-      Navigator.pop(context); // Action to go back
-    },
-  ),
-          centerTitle: true,
-           flexibleSpace: FlexibleSpaceBar(
-    centerTitle: true,
-    title: Text(
-      'النتائج',
-      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-            fontFamily: 'primary',
-            fontSize: 22,
-            color:  Colors.white,
-            fontWeight: FontWeight.bold,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white), // Customize the back icon color
+            onPressed: () {
+              Navigator.pop(context); // Action to go back
+            },
           ),
-    ),
-  ),
+          centerTitle: true,
+          flexibleSpace: FlexibleSpaceBar(
+            centerTitle: true,
+            title: Text(
+              'النتائج',
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    fontFamily: 'primary',
+                    fontSize: 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
           backgroundColor: const Color(0xff104F59),
         ),
         body: Column(
@@ -126,7 +124,6 @@ class _NataeejPageState extends State<NataeejPage> {
                       setState(() {
                         selectedValue = value;
                         if (selectedValue != null) {
-                          print('Selected value: $selectedValue');
                           fetchCompetitionData(widget.competitionId, selectedValue!);
                         }
                       });
@@ -143,108 +140,121 @@ class _NataeejPageState extends State<NataeejPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: competitionData.length,
-                itemBuilder: (context, index) {
-                  var data = competitionData[index];
-                  return InkWell(
-                    onTap: () {},
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: ClipOval(
-                                    child: data['image'] != null
-                                        ? Image.network(
-                                            'http://zadalmomen.com/images/${data['image']}',
-                                            fit: BoxFit.cover,
-                                            scale: 1.0,
-                                          )
-                                        : Image.asset(
-                                            'assets/icon/person.jpeg',
-                                            fit: BoxFit.cover,
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+                  : competitionData.isNotEmpty
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: competitionData.length,
+                          itemBuilder: (context, index) {
+                            var data = competitionData[index];
+                            return InkWell(
+                              onTap: () {},
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 60,
+                                            height: 60,
+                                            child: ClipOval(
+                                              child: data['image'] != null
+                                                  ? Image.network(
+                                                      'https://api.zadalmomen.com/images/${data['image']}',
+                                                      fit: BoxFit.cover,
+                                                      scale: 1.0,
+                                                    )
+                                                  : Image.asset(
+                                                      'assets/icon/person.jpeg',
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                            ),
                                           ),
+                                          const SizedBox(width: 10),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${data["full_name"]}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleSmall!
+                                                    .copyWith(
+                                                        fontFamily: 'primary',
+                                                        fontSize: 22,
+                                                        color: const Color(0xff104F59),
+                                                        fontWeight: FontWeight.bold),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "المجموع",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleSmall!
+                                                        .copyWith(
+                                                            fontFamily: 'primary',
+                                                            fontSize: 18,
+                                                            color: const Color.fromARGB(255, 0, 0, 0),
+                                                            fontWeight: FontWeight.w900),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    ":",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleSmall!
+                                                        .copyWith(
+                                                            fontFamily: 'primary',
+                                                            fontSize: 18,
+                                                            color: const Color.fromARGB(255, 0, 0, 0),
+                                                            fontWeight: FontWeight.w900),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    "${data['total_counter_value']}",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleSmall!
+                                                        .copyWith(
+                                                            fontFamily: 'primary',
+                                                            fontSize: 18,
+                                                            color: const Color.fromARGB(255, 0, 0, 0),
+                                                            fontWeight: FontWeight.w900),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${data["full_name"]}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                              fontFamily: 'primary',
-                                              fontSize: 22,
-                                              color: const Color(0xff104F59),
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "المجموع",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall!
-                                              .copyWith(
-                                                  fontFamily: 'primary',
-                                                  fontSize: 18,
-                                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                                  fontWeight: FontWeight.w900),
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          ":",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall!
-                                              .copyWith(
-                                                  fontFamily: 'primary',
-                                                  fontSize: 18,
-                                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                                  fontWeight: FontWeight.w900),
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          "${data['total_counter_value']}",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall!
-                                              .copyWith(
-                                                  fontFamily: 'primary',
-                                                  fontSize: 18,
-                                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                                  fontWeight: FontWeight.w900),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  const Divider(
+                                    thickness: 1.5,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            "لا توجد بيانات متاحة",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
                             ),
-                          ],
-                        ),
-                        const Divider(
-                          thickness: 1.5,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                          ),
+                        ), // Show no data available message
             ),
           ],
         ),

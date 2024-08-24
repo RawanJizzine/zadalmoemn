@@ -15,7 +15,8 @@ class NatijatiPage extends StatefulWidget {
 class _NatijatiPageState extends State<NatijatiPage> {
   final storage = const FlutterSecureStorage();
   List<dynamic> results = []; // List to store results from API
- 
+  bool isLoading = false; // State variable for loading
+
   @override
   void initState() {
     super.initState();
@@ -23,16 +24,19 @@ class _NatijatiPageState extends State<NatijatiPage> {
   }
 
   Future<void> fetchResults() async {
+    setState(() {
+      isLoading = true; // Start loading
+    });
+
     final accessToken = await storage.read(key: 'token');
     final storedUserId = await storage.read(key: 'user_id');
-    final competitionId =
-        widget.competitionId; // Get the competitionId from the widget
-    print('zh2na');
-    print(storedUserId);
+    final competitionId = widget.competitionId; // Get the competitionId from the widget
+
     try {
       final response = await http.get(
         Uri.parse(
-            'http://zadalmomen.com/api/getnatijatiestkhfar?competition_id=$competitionId&user_id=$storedUserId'), // Use query parameter
+          'https://api.zadalmomen.com/api/getnatijatiestkhfar?competition_id=$competitionId&user_id=$storedUserId',
+        ), // Use query parameter
         headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
@@ -40,140 +44,137 @@ class _NatijatiPageState extends State<NatijatiPage> {
       );
 
       if (response.statusCode == 200) {
-        print('sucees');
         setState(() {
-         
           results = json.decode(response.body);
         });
       } else {
-       
         print('Failed to load results');
         print('Response body: ${response.body}');
       }
     } catch (error) {
       print('Error occurred: $error');
+    } finally {
+      setState(() {
+        isLoading = false; // Stop loading
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection:
-          TextDirection.rtl, // Set the text direction to right-to-left
+      textDirection: TextDirection.rtl, // Set the text direction to right-to-left
       child: Scaffold(
         appBar: AppBar(
-           leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white), // Customize the back icon color
-    onPressed: () {
-      Navigator.pop(context); // Action to go back
-    },
-  ),
-          flexibleSpace: FlexibleSpaceBar(
-    centerTitle: true,
-    title: Text(
-      'نتيجتي',
-      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-            fontFamily: 'primary',
-            fontSize: 22,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white), // Customize the back icon color
+            onPressed: () {
+              Navigator.pop(context); // Action to go back
+            },
           ),
-    ),
-  ),
+          flexibleSpace: FlexibleSpaceBar(
+            centerTitle: true,
+            title: Text(
+              'نتيجتي',
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    fontFamily: 'primary',
+                    fontSize: 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
           backgroundColor: const Color(0xff104F59),
         ),
-        body: results.isEmpty
-            ? const Center(child: Text('No data available')) // Show a loading indicator while fetching data
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20), // Add spacing below the AppBar
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: results.length,
-                      itemBuilder: (context, index) {
-                        final result = results[index];
-                        return InkWell(
-                          onTap: () {
-                            // Handle tap event
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator()) // Show loading spinner
+            : results.isEmpty
+                ? const Center(child: Text( "لا توجد بيانات متاحة")) // Show no data message
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20), // Add spacing below the AppBar
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: results.length,
+                          itemBuilder: (context, index) {
+                            final result = results[index];
+                            return InkWell(
+                              onTap: () {
+                                // Handle tap event
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'اليوم ${index + 1} :', // Use string interpolation to include the index + 1 value
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall!
+                                              .copyWith(
+                                                  fontFamily: 'primary',
+                                                  fontSize: 22,
+                                                  color: const Color(0xff104F59),
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          result['date'] ?? 'N/A', // Update with actual date field
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall!
+                                              .copyWith(
+                                                  fontFamily: 'primary',
+                                                  fontSize: 22,
+                                                  color: const Color(0xff104F59),
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 5), // Add a small space between the texts
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'المجموع :',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall!
+                                              .copyWith(
+                                                  fontFamily: 'primary',
+                                                  fontSize: 22,
+                                                  color: const Color(0xff104F59),
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          result['counter_value']?.toString() ?? '', // Update with actual competition field
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall!
+                                              .copyWith(
+                                                  fontFamily: 'primary',
+                                                  fontSize: 22,
+                                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                                  fontWeight: FontWeight.w600),
+                                        ),
+                                      ],
+                                    ),
+                                    const Divider(thickness: 1.5),
+                                  ],
+                                ),
+                              ),
+                            );
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      'اليوم ${index + 1} :', // Use string interpolation to include the index + 1 value
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                              fontFamily: 'primary',
-                                              fontSize: 22,
-                                              color: const Color(0xff104F59),
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      result['date'] ??
-                                          'N/A', // Update with actual date field
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                              fontFamily: 'primary',
-                                              fontSize: 22,
-                                              color: const Color(0xff104F59),
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                    height:
-                                        5), // Add a small space between the texts
-                                Row(
-                                  children: [
-                                    Text(
-                                      'المجموع :',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                              fontFamily: 'primary',
-                                              fontSize: 22,
-                                              color: const Color(0xff104F59),
-                                              fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      result['counter_value']?.toString() ??
-                                          '', // Update with actual competition field
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                              fontFamily: 'primary',
-                                              fontSize: 22,
-                                              color: const Color.fromARGB(255, 0, 0, 0),
-                                              fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
-                                ),
-                                const Divider(
-                                  thickness: 1.5,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
       ),
     );
   }
 }
+

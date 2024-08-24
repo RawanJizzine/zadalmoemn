@@ -54,7 +54,7 @@ class _ResultsPageState extends State<ResultsPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://zadalmomen.com/api/getuser/$storedUserId'),
+        Uri.parse('https://api.zadalmomen.com/api/getuser/$storedUserId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
@@ -97,7 +97,7 @@ class _ResultsPageState extends State<ResultsPage> {
   try {
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://zadalmomen.com/api/updateuser/$storedUserId'),
+      Uri.parse('https://api.zadalmomen.com/api/updateuser/$storedUserId'),
     );
 
     request.headers['Authorization'] = 'Bearer $accessToken';
@@ -122,10 +122,16 @@ class _ResultsPageState extends State<ResultsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Data saved successfully')),
       );
-
+Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ResultsPage()),
+      );
       // Optionally, fetch updated user data
       fetchUserData();
     } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update user data')),
+      );
       throw Exception('Failed to update user data');
     }
   } catch (e) {
@@ -175,7 +181,7 @@ class _ResultsPageState extends State<ResultsPage> {
                 width: 90,
                 child: ClipOval(
                     child: Image.network(
-                      'http://zadalmomen.com/images/$imageUrl',
+                      'https://api.zadalmomen.com/images/$imageUrl',
                       fit: BoxFit.cover,
                     ),
                   ),

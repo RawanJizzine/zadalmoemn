@@ -37,7 +37,7 @@ class _SalawatPageState extends State<SalawatPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://zadalmomen.com/api/getcountersalawat?competition_id=${widget.competitionId}&user_id=$storedUserId'),
+        Uri.parse('https://api.zadalmomen.com/api/getcountersalawat?competition_id=${widget.competitionId}&user_id=$storedUserId'),
         headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ final startDateAdjusted = startDate.subtract(const Duration(hours: 8));
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://zadalmomen.com/api/savecountersalawat')
+        Uri.parse('https://api.zadalmomen.com/api/savecountersalawat')
       );
 
       request.headers['Content-Type'] = 'application/json';
